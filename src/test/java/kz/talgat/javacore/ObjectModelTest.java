@@ -15,6 +15,9 @@ class ObjectModelTest {
 
     private final UserService userService = new UserService();
 
+    /**
+     * Присваивание объектной переменной копирует ссылку, а не создаёт новый объект.
+     */
     @Test
     void assignmentCopiesReferenceNotObject() {
         MutableUser user1 = new MutableUser("Talgat", List.of("USER"));
@@ -26,6 +29,9 @@ class ObjectModelTest {
         assertThat(user1.getName()).isEqualTo("Arman");
     }
 
+    /**
+     * Два объекта с одинаковыми полями всё равно остаются разными объектами в памяти.
+     */
     @Test
     void sameStateDoesNotMeanSameReference() {
         MutableUser user1 = new MutableUser("Talgat", List.of("USER"));
@@ -34,6 +40,9 @@ class ObjectModelTest {
         assertThat(user2).isNotSameAs(user1);
     }
 
+    /**
+     * Метод получает копию ссылки и может через неё изменить mutable-объект.
+     */
     @Test
     void methodCanMutateObjectThroughCopiedReference() {
         MutableUser user = new MutableUser("Talgat", List.of("USER"));
@@ -43,6 +52,9 @@ class ObjectModelTest {
         assertThat(user.getName()).isEqualTo("Arman");
     }
 
+    /**
+     * Переприсваивание параметра внутри метода не меняет ссылку у вызывающего кода.
+     */
     @Test
     void methodCannotReplaceCallerReference() {
         MutableUser user = new MutableUser("Talgat", List.of("USER"));
@@ -53,6 +65,9 @@ class ObjectModelTest {
         assertThat(user.getRoles()).containsExactly("USER");
     }
 
+    /**
+     * MutableUser сохраняет переданный список как есть, поэтому внешний список остаётся общим состоянием.
+     */
     @Test
     void mutableUserKeepsSharedRolesReference() {
         List<String> roles = new ArrayList<>(List.of("USER"));
@@ -63,6 +78,9 @@ class ObjectModelTest {
         assertThat(user.getRoles()).containsExactly("USER", "ADMIN");
     }
 
+    /**
+     * Getter mutable-объекта отдаёт внутренний список, и внешний код может изменить состояние объекта.
+     */
     @Test
     void mutableUserExposesInternalRolesCollection() {
         MutableUser user = new MutableUser("Talgat", new ArrayList<>(List.of("USER")));
@@ -72,6 +90,9 @@ class ObjectModelTest {
         assertThat(user.getRoles()).containsExactly("USER", "ADMIN");
     }
 
+    /**
+     * ImmutableUser делает defensive copy, поэтому изменение исходного списка не влияет на объект.
+     */
     @Test
     void immutableUserCopiesRolesInConstructor() {
         List<String> roles = new ArrayList<>(List.of("USER"));
@@ -82,6 +103,9 @@ class ObjectModelTest {
         assertThat(user.getRoles()).containsExactly("USER");
     }
 
+    /**
+     * ImmutableUser возвращает неизменяемый список ролей.
+     */
     @Test
     void immutableUserReturnsUnmodifiableRoles() {
         ImmutableUser user = new ImmutableUser("Talgat", List.of("USER"));
@@ -90,6 +114,9 @@ class ObjectModelTest {
                 .isInstanceOf(UnsupportedOperationException.class);
     }
 
+    /**
+     * Добавление роли к immutable-объекту создаёт новый объект и не меняет старый.
+     */
     @Test
     void addRoleReturnsNewImmutableUserWithoutChangingOriginal() {
         ImmutableUser user = new ImmutableUser("Talgat", List.of("USER"));
@@ -101,6 +128,9 @@ class ObjectModelTest {
         assertThat(updatedUser.getRoles()).containsExactly("USER", "ADMIN");
     }
 
+    /**
+     * final запрещает переприсвоить переменную, но не делает сам mutable-объект неизменяемым.
+     */
     @Test
     void finalVariableCanStillPointToMutableObject() {
         final MutableUser user = new MutableUser("Talgat", List.of("USER"));
